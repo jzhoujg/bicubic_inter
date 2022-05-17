@@ -6,6 +6,17 @@
 #include <math.h>
 #include "libbmp.h"
 
+#ifndef _UNISTD_H
+#define _UNISTD_H
+#endif _UNISTD_H
+#include <io.h>
+#include <process.h>
+#include <pthread.h>
+
+using namespace std;
+#pragma comment(lib, "pthreadVC2.lib")
+
+
 
 
 double dabs(double c)
@@ -149,6 +160,9 @@ void bicubic_inter(bmp_img in, uint32_t width_in, uint32_t height_in, bmp_img* o
 
 	printf("Stage 2 : SUCCESSFUL!\n");
 
+
+
+
 	printf("Stage 3(OUTPUT) : START...\n");
 
 
@@ -162,6 +176,181 @@ void bicubic_inter(bmp_img in, uint32_t width_in, uint32_t height_in, bmp_img* o
 	bmp_img_free(&img_p);
 	return;
 }
+
+
+
+
+
+
+
+void* multi_inter(void* vargp)
+{
+	// Draw a checkerboard pattern:
+	uint32_t width_in = 960;
+	uint32_t height_in = 540;
+	uint32_t width_out = 3840;
+	uint32_t height_out = 2160;
+
+	static int s = 0;
+
+	s++;
+
+	bmp_img in;
+	bmp_img out;
+
+	
+	bmp_img* out_p = &out;
+
+	size_t ex = 4;
+
+
+	char symbol[20] = "0123456789";
+	char ami[20] = "target/1.bmp";
+	ami[7] = symbol[s];
+
+
+
+	bmp_img_init_df(&in, width_in, height_in);
+	bmp_img_init_df(&out, width_in * ex, height_in * ex);
+
+
+	bmp_img_read(&in,ami);
+
+
+
+	printf("Stage 1(PADDING) : START...\n");
+	bmp_img img_p;
+	bmp_img_init_df(&img_p, width_in + 4, height_in + 4);
+	bmp_padding_2_repeat(&in, &img_p);
+
+	// bmp_img_write(&img_p, "results/padding_test_0.bmp");
+
+	//bmp_value_print(&in);
+	//bmp_value_print(& img_p);
+
+	printf("Stage 1(PADDING) : SUCCESSFUL!\n");
+	printf("Stage 2(inter) : START...\n");
+
+
+	double* Y;
+	double* X;
+	double u_y, u_x;
+
+	for (size_t y = 0, x; y < height_out; y++)
+	{
+		//double src_y = (y + 0.5) / 4 -0.5 ;
+		////if (src_y < 0) src_y = 0;
+		////if (src_y > height_out - 1) src_y = height_out - 1;
+		//src_y += 2;
+
+
+
+		double src_y = (y + 0.5) / 4 + 0.25;
+		size_t y1 = floor((y + 0.5) / 4 + 0.25) + 1;
+
+
+
+
+
+		// size_t y1 = floor(src_y);
+		size_t y0 = y1 - 1;
+		size_t y2 = y1 + 1;
+		size_t y3 = y1 + 2;
+
+		u_y = src_y - double(y1) + 1;
+
+		Y = getWeight(u_y);
+
+		for (x = 0; x < width_out; x++)
+		{
+			double src_x = (x + 0.5) / 4 + 0.25;
+			size_t x1 = floor((x + 0.5) / 4 + 0.25) + 1;
+
+
+			// size_t y1 = floor(src_y);
+			size_t x0 = x1 - 1;
+			size_t x2 = x1 + 1;
+			size_t x3 = x1 + 2;
+
+
+			const unsigned char up = 255;
+			const unsigned char down = 0;
+
+			u_x = src_x - double(x1) + 1;
+			X = getWeight(u_x);
+
+			out_p->img_pixels[y][x].red = Y[0] * X[0] * img_p.img_pixels[y0][x0].red + Y[0] * X[1] * img_p.img_pixels[y0][x1].red + Y[0] * X[2] * img_p.img_pixels[y0][x2].red + Y[0] * X[3] * img_p.img_pixels[y0][x3].red
+				+ Y[1] * X[0] * img_p.img_pixels[y1][x0].red + Y[1] * X[1] * img_p.img_pixels[y1][x1].red + Y[1] * X[2] * img_p.img_pixels[y1][x2].red + Y[1] * X[3] * img_p.img_pixels[y1][x3].red
+				+ Y[2] * X[0] * img_p.img_pixels[y2][x0].red + Y[2] * X[1] * img_p.img_pixels[y2][x1].red + Y[2] * X[2] * img_p.img_pixels[y2][x2].red + Y[2] * X[3] * img_p.img_pixels[y2][x3].red
+				+ Y[3] * X[0] * img_p.img_pixels[y3][x0].red + Y[3] * X[1] * img_p.img_pixels[y3][x1].red + Y[3] * X[2] * img_p.img_pixels[y3][x2].red + Y[3] * X[3] * img_p.img_pixels[y3][x3].red
+				;
+
+			if (out_p->img_pixels[y][x].red > up) out_p->img_pixels[y][x].red = 255;
+			if (out_p->img_pixels[y][x].red < down) out_p->img_pixels[y][x].red = 0;
+
+
+			out_p->img_pixels[y][x].blue = Y[0] * X[0] * img_p.img_pixels[y0][x0].blue + Y[0] * X[1] * img_p.img_pixels[y0][x1].blue + Y[0] * X[2] * img_p.img_pixels[y0][x2].blue + Y[0] * X[3] * img_p.img_pixels[y0][x3].blue
+				+ Y[1] * X[0] * img_p.img_pixels[y1][x0].blue + Y[1] * X[1] * img_p.img_pixels[y1][x1].blue + Y[1] * X[2] * img_p.img_pixels[y1][x2].blue + Y[1] * X[3] * img_p.img_pixels[y1][x3].blue
+				+ Y[2] * X[0] * img_p.img_pixels[y2][x0].blue + Y[2] * X[1] * img_p.img_pixels[y2][x1].blue + Y[2] * X[2] * img_p.img_pixels[y2][x2].blue + Y[2] * X[3] * img_p.img_pixels[y2][x3].blue
+				+ Y[3] * X[0] * img_p.img_pixels[y3][x0].blue + Y[3] * X[1] * img_p.img_pixels[y3][x1].blue + Y[3] * X[2] * img_p.img_pixels[y3][x2].blue + Y[3] * X[3] * img_p.img_pixels[y3][x3].blue;
+			if (out_p->img_pixels[y][x].blue > up) out_p->img_pixels[y][x].blue = 255;
+			if (out_p->img_pixels[y][x].blue < down) out_p->img_pixels[y][x].blue = 0;
+
+
+
+			out_p->img_pixels[y][x].green = Y[0] * X[0] * img_p.img_pixels[y0][x0].green + Y[0] * X[1] * img_p.img_pixels[y0][x1].green + Y[0] * X[2] * img_p.img_pixels[y0][x2].green + Y[0] * X[3] * img_p.img_pixels[y0][x3].green
+				+ Y[1] * X[0] * img_p.img_pixels[y1][x0].green + Y[1] * X[1] * img_p.img_pixels[y1][x1].green + Y[1] * X[2] * img_p.img_pixels[y1][x2].green + Y[1] * X[3] * img_p.img_pixels[y1][x3].green
+				+ Y[2] * X[0] * img_p.img_pixels[y2][x0].green + Y[2] * X[1] * img_p.img_pixels[y2][x1].green + Y[2] * X[2] * img_p.img_pixels[y2][x2].green + Y[2] * X[3] * img_p.img_pixels[y2][x3].green
+				+ Y[3] * X[0] * img_p.img_pixels[y3][x0].green + Y[3] * X[1] * img_p.img_pixels[y3][x1].green + Y[3] * X[2] * img_p.img_pixels[y3][x2].green + Y[3] * X[3] * img_p.img_pixels[y3][x3].green;
+			if (out_p->img_pixels[y][x].green > up) out_p->img_pixels[y][x].green = 255;
+			if (out_p->img_pixels[y][x].green < down) out_p->img_pixels[y][x].green = 0;
+
+
+		}
+		printf("Processing rows %d ... \n", int(y));
+
+	}
+
+	printf("Stage 2 : SUCCESSFUL!\n");
+
+
+
+
+	printf("Stage 3(OUTPUT) : START...\n");
+
+	char res[20] = "1.bmp";
+
+	res[0] = symbol[s];
+	bmp_img_write(out_p, res);
+
+
+
+	printf("Stage 3(OUTPUT) : SUCCESSFUL\n");
+
+
+	bmp_img_free(&img_p);
+
+
+	return 0;
+}
+
+
+
+void multi_set(uint32_t num_instance)
+
+{
+	int i;
+	pthread_t tid;
+
+	// Let us create three threads
+	for (i = 0; i < num_instance; i++)
+		pthread_create(&tid, NULL, multi_inter, NULL);
+
+	pthread_exit(NULL);
+
+
+}
+
 int main()
 {
 
@@ -188,6 +377,15 @@ int main()
 
 	
 	printf("exit!\n");
+
+
+	printf("start mul!");
+
+	multi_set(4);
+
+
+	
+
 
 
 	return 0;
