@@ -202,17 +202,11 @@ GT\45.bmp , upscaled\45.bmp	, 30.42, 0.845, 0.352	, 7.5
 GT\46.bmp , upscaled\46.bmp	, 28.16, 0.769, 0.408	, 7.5
 Final Result		: 31.84, 0.869, 0.277, 357.9s
 
-**************** METHOD: INTER_LANCZOS4***************
-Origin	Upscaled		 psnr || ssim || lpips || time
-GT\0.bmp , upscaled\0.bmp	, 31.28, 0.855, 0.280	, 8.3
-**************** METHOD: INTER_LANCZOS4***************
-Origin	Upscaled		 psnr || ssim || lpips || time
-c_i\2.bmp , c_o\2.bmp	, 26.10, 0.803, 0.269	, 8.5
-Final Result		: 26.10, 0.803, 0.269, 9.0s
 
-**************** METHOD: INTER_LANCZOS4***************
+
+20220521
+**************** METHOD: MY_METHOD***************
 Origin	Upscaled		 psnr || ssim || lpips || time
-c_i\0.bmp , c_o\0.bmp	, 28.88, 0.812, 0.291	, 8.2
-c_i\2.bmp , c_o\2.bmp	, 26.10, 0.803, 0.269	, 7.9
-Final Result		: 27.49, 0.808, 0.280, 16.5s
+c_i\1.bmp , c_o\1.bmp	, 26.56, 0.775, 0.359	, 8.7
+Final Result		: 26.56, 0.775, 0.359, 9.1s
 
