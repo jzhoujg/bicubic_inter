@@ -10,8 +10,6 @@
 #ifndef _UNISTD_H
 #define _UNISTD_H
 #endif _UNISTD_H
-#include <io.h>
-#include <process.h>
 #include <pthread.h>
 
 using namespace std;
@@ -19,6 +17,8 @@ using namespace std;
 
 
 
+// 完成函数动态空间分配
+// 完成函数的
 
 double temp_r[2160][3840];
 double temp_g[2160][3840];
@@ -63,9 +63,6 @@ double* getWeight(double c, double a = -0.5)
 
 	// double sum = pow(weight[0], 2) + pow(weight[1], 2) + pow(weight[2], 2) + pow(weight[3], 2);
 
-
-	double sum = weight[0] + weight[1] + weight[2] + weight[3];
-
 	//printf("%f \t", sum);
 
 	return weight;
@@ -101,28 +98,27 @@ void bicubic_inter(bmp_img in, uint32_t width_in, uint32_t height_in, bmp_img* o
 		//src_y += 2;
 
 
+		
+		//double src_y = (y + 0.5) / 4 + 0.25;
+		//size_t y1 = floor((y + 0.5) / 4 + 0.25) + 1;
 
-		double src_y = (y + 0.5) / 4 + 0.25;
-		size_t y1 = floor((y + 0.5) / 4 + 0.25) + 1;
-
-
-
-
+		double src_y = (y + 0.5) / 4 - 0.5 ;
+		size_t y1 = floor((y + 0.5) / 4 - 0.5) + 2;
 
 		// size_t y1 = floor(src_y);
 		size_t y0 = y1 - 1;
 		size_t y2 = y1 + 1;
 		size_t y3 = y1 + 2;
 
-		u_y = src_y - double(y1) + 1;
+		u_y = src_y - double(y1) + 2;
 
 		Y = getWeight(u_y);
 
 		for (x = 0; x < width_out; x++)
 		{
 
-			double src_x = (x + 0.5) / 4 + 0.25;
-			size_t x1 = floor((x + 0.5) / 4 + 0.25) + 1;
+			double src_x = (x + 0.5) / 4 -0.5;
+			size_t x1 = floor((x + 0.5) / 4 - 0.5) + 2;
 
 
 			// size_t y1 = floor(src_y);
@@ -134,14 +130,14 @@ void bicubic_inter(bmp_img in, uint32_t width_in, uint32_t height_in, bmp_img* o
 			const unsigned char up = 255;
 			const unsigned char down = 0;
 
-			u_x = src_x - double(x1) + 1;
+			u_x = src_x - double(x1) + 2 ;
 			X = getWeight(u_x);
 
 			temp_r[y][x] =
-				double(Y[0] * X[0] * img_p.img_pixels[y0][x0].red) + double(Y[0] * X[1] * img_p.img_pixels[y0][x1].red) + double(Y[0] * X[2] * img_p.img_pixels[y0][x2].red) + double(Y[0] * X[3] * img_p.img_pixels[y0][x3].red)
-				+ double(Y[1] * X[0] * img_p.img_pixels[y1][x0].red) + double(Y[1] * X[1] * img_p.img_pixels[y1][x1].red) + double(Y[1] * X[2] * img_p.img_pixels[y1][x2].red) + double(Y[1] * X[3] * img_p.img_pixels[y1][x3].red)
-				+ double(Y[2] * X[0] * img_p.img_pixels[y2][x0].red) + double(Y[2] * X[1] * img_p.img_pixels[y2][x1].red) + double(Y[2] * X[2] * img_p.img_pixels[y2][x2].red) + double(Y[2] * X[3] * img_p.img_pixels[y2][x3].red)
-				+ double(Y[3] * X[0] * img_p.img_pixels[y3][x0].red) + double(Y[3] * X[1] * img_p.img_pixels[y3][x1].red) + double(Y[3] * X[2] * img_p.img_pixels[y3][x2].red) + double(Y[3] * X[3] * img_p.img_pixels[y3][x3].red)
+				  double(Y[0] * X[0] * int(img_p.img_pixels[y0][x0].red)) + double(Y[0] * X[1] * int(img_p.img_pixels[y0][x1].red)) + double(Y[0] * X[2] * int(img_p.img_pixels[y0][x2].red)) + double(Y[0] * X[3] * int(img_p.img_pixels[y0][x3].red))
+				+ double(Y[1] * X[0] * int(img_p.img_pixels[y1][x0].red)) + double(Y[1] * X[1] * int(img_p.img_pixels[y1][x1].red)) + double(Y[1] * X[2] * int(img_p.img_pixels[y1][x2].red)) + double(Y[1] * X[3] * int(img_p.img_pixels[y1][x3].red))
+				+ double(Y[2] * X[0] * int(img_p.img_pixels[y2][x0].red)) + double(Y[2] * X[1] * int(img_p.img_pixels[y2][x1].red)) + double(Y[2] * X[2] * int(img_p.img_pixels[y2][x2].red)) + double(Y[2] * X[3] * int(img_p.img_pixels[y2][x3].red))
+				+ double(Y[3] * X[0] * int(img_p.img_pixels[y3][x0].red)) + double(Y[3] * X[1] * int(img_p.img_pixels[y3][x1].red)) + double(Y[3] * X[2] * int(img_p.img_pixels[y3][x2].red)) + double(Y[3] * X[3] * int(img_p.img_pixels[y3][x3].red))
 				;
 
 
@@ -152,10 +148,10 @@ void bicubic_inter(bmp_img in, uint32_t width_in, uint32_t height_in, bmp_img* o
 
 
 			temp_b[y][x] =
-				double(Y[0] * X[0] * img_p.img_pixels[y0][x0].blue) + double(Y[0] * X[1] * img_p.img_pixels[y0][x1].blue) + double(Y[0] * X[2] * img_p.img_pixels[y0][x2].blue) + double(Y[0] * X[3] * img_p.img_pixels[y0][x3].blue)
-				+ double(Y[1] * X[0] * img_p.img_pixels[y1][x0].blue) + double(Y[1] * X[1] * img_p.img_pixels[y1][x1].blue) + double(Y[1] * X[2] * img_p.img_pixels[y1][x2].blue) + double(Y[1] * X[3] * img_p.img_pixels[y1][x3].blue)
-				+ double(Y[2] * X[0] * img_p.img_pixels[y2][x0].blue) + double(Y[2] * X[1] * img_p.img_pixels[y2][x1].blue) + double(Y[2] * X[2] * img_p.img_pixels[y2][x2].blue) + double(Y[2] * X[3] * img_p.img_pixels[y2][x3].blue)
-				+ double(Y[3] * X[0] * img_p.img_pixels[y3][x0].blue) + double(Y[3] * X[1] * img_p.img_pixels[y3][x1].blue) + double(Y[3] * X[2] * img_p.img_pixels[y3][x2].blue) + double(Y[3] * X[3] * img_p.img_pixels[y3][x3].blue);
+				double(Y[0] * X[0] * int(img_p.img_pixels[y0][x0].blue)) + double(Y[0] * X[1] * int(img_p.img_pixels[y0][x1].blue)) + double(Y[0] * X[2] * int(img_p.img_pixels[y0][x2].blue)) + double(Y[0] * X[3] * int(img_p.img_pixels[y0][x3].blue))
+				+ double(Y[1] * X[0] * int(img_p.img_pixels[y1][x0].blue)) + double(Y[1] * X[1] * int(img_p.img_pixels[y1][x1].blue)) + double(Y[1] * X[2] * int(img_p.img_pixels[y1][x2].blue)) + double(Y[1] * X[3] * int(img_p.img_pixels[y1][x3].blue))
+				+ double(Y[2] * X[0] * int(img_p.img_pixels[y2][x0].blue)) + double(Y[2] * X[1] * int(img_p.img_pixels[y2][x1].blue)) + double(Y[2] * X[2] * int(img_p.img_pixels[y2][x2].blue)) + double(Y[2] * X[3] * int(img_p.img_pixels[y2][x3].blue))
+				+ double(Y[3] * X[0] * int(img_p.img_pixels[y3][x0].blue)) + double(Y[3] * X[1] * int(img_p.img_pixels[y3][x1].blue)) + double(Y[3] * X[2] * int(img_p.img_pixels[y3][x2].blue)) + double(Y[3] * X[3] * int(img_p.img_pixels[y3][x3].blue));
 			/*
 			out_p->img_pixels[y][x].blue = Y[0] * X[0] * img_p.img_pixels[y0][x0].blue + Y[0] * X[1] * img_p.img_pixels[y0][x1].blue + Y[0] * X[2] * img_p.img_pixels[y0][x2].blue + Y[0] * X[3] * img_p.img_pixels[y0][x3].blue
 				+ Y[1] * X[0] * img_p.img_pixels[y1][x0].blue + Y[1] * X[1] * img_p.img_pixels[y1][x1].blue + Y[1] * X[2] * img_p.img_pixels[y1][x2].blue + Y[1] * X[3] * img_p.img_pixels[y1][x3].blue
@@ -169,10 +165,10 @@ void bicubic_inter(bmp_img in, uint32_t width_in, uint32_t height_in, bmp_img* o
 			out->img_pixels[y][x].blue = temp_b[y][x];
 
 			temp_g[y][x] =
-				double(Y[0] * X[0] * img_p.img_pixels[y0][x0].green) + double(Y[0] * X[1] * img_p.img_pixels[y0][x1].green) + double(Y[0] * X[2] * img_p.img_pixels[y0][x2].green) + double(Y[0] * X[3] * img_p.img_pixels[y0][x3].green)
-				+ double(Y[1] * X[0] * img_p.img_pixels[y1][x0].green) + double(Y[1] * X[1] * img_p.img_pixels[y1][x1].green) + double(Y[1] * X[2] * img_p.img_pixels[y1][x2].green) + double(Y[1] * X[3] * img_p.img_pixels[y1][x3].green)
-				+ double(Y[2] * X[0] * img_p.img_pixels[y2][x0].green) + double(Y[2] * X[1] * img_p.img_pixels[y2][x1].green) + double(Y[2] * X[2] * img_p.img_pixels[y2][x2].green) + double(Y[2] * X[3] * img_p.img_pixels[y2][x3].green)
-				+ double(Y[3] * X[0] * img_p.img_pixels[y3][x0].green) + double(Y[3] * X[1] * img_p.img_pixels[y3][x1].green) + double(Y[3] * X[2] * img_p.img_pixels[y3][x2].green) + double(Y[3] * X[3] * img_p.img_pixels[y3][x3].green);
+				double(Y[0] * X[0] * int(img_p.img_pixels[y0][x0].green)) + double(Y[0] * X[1] * int(img_p.img_pixels[y0][x1].green)) + double(Y[0] * X[2] * int(img_p.img_pixels[y0][x2].green)) + double(Y[0] * X[3] * int(img_p.img_pixels[y0][x3].green))
+				+ double(Y[1] * X[0] * int(img_p.img_pixels[y1][x0].green)) + double(Y[1] * X[1] * int(img_p.img_pixels[y1][x1].green)) + double(Y[1] * X[2] * int(img_p.img_pixels[y1][x2].green)) + double(Y[1] * X[3] * int(img_p.img_pixels[y1][x3].green))
+				+ double(Y[2] * X[0] * int(img_p.img_pixels[y2][x0].green)) + double(Y[2] * X[1] * int(img_p.img_pixels[y2][x1].green)) + double(Y[2] * X[2] * int(img_p.img_pixels[y2][x2].green)) + double(Y[2] * X[3] * int(img_p.img_pixels[y2][x3].green))
+				+ double(Y[3] * X[0] * int(img_p.img_pixels[y3][x0].green)) + double(Y[3] * X[1] * int(img_p.img_pixels[y3][x1].green)) + double(Y[3] * X[2] * int(img_p.img_pixels[y3][x2].green)) + double(Y[3] * X[3] * int(img_p.img_pixels[y3][x3].green));
 
 
 			if (temp_g[y][x] > up) temp_g[y][x] = 255;
@@ -194,7 +190,7 @@ void bicubic_inter(bmp_img in, uint32_t width_in, uint32_t height_in, bmp_img* o
 	printf("Stage 3(OUTPUT) : START...\n");
 
 
-	bmp_img_write(out, "results/new.bmp");
+	bmp_img_write(out, "results/1.bmp");
 
 
 
@@ -225,10 +221,7 @@ void* multi_inter(void* vargp)
 
 	bmp_img in;
 	bmp_img out;
-
-
 	bmp_img* out_p = &out;
-
 	size_t ex = 4;
 
 
@@ -380,7 +373,7 @@ void* multi_inter(void* vargp)
 
 	printf("Stage 3(OUTPUT) : START...\n");
 
-	char res[20] = "1.bmp";
+	char res[20] = "0.bmp";
 
 	res[0] = symbol[s];
 	bmp_img_write(out_p, res);
