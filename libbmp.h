@@ -236,7 +236,7 @@ enum bmp_error
 	for (size_t y = 0; y < h; y++)
 	{
 		// Write a whole row of pixels to the file:
-		fwrite(img->img_pixels[abs(int(offset - y))], sizeof(bmp_pixel), img->img_header.biWidth, img_file);
+		fwrite(img->img_pixels[abs((int)(offset - y))], sizeof(bmp_pixel), img->img_header.biWidth, img_file);
 
 		// Write the padding for the row!
 		fwrite(padding, sizeof(unsigned char), BMP_GET_PADDING(img->img_header.biWidth), img_file);
@@ -282,7 +282,7 @@ enum bmp_error
 	for (size_t y = 0; y < h; y++)
 	{
 		// Read a whole row of pixels from the file:
-		if (fread(img->img_pixels[abs(int(offset - y))], sizeof(bmp_pixel), items, img_file) != items)
+		if (fread(img->img_pixels[abs((int)(offset - y))], sizeof(bmp_pixel), items, img_file) != items)
 		{
 			fclose(img_file);
 			return BMP_ERROR;
@@ -313,15 +313,15 @@ enum bmp_error bmp_value_print(bmp_img* img)
 		return BMP_ERROR;
 	}
 
-	printf("The height is :%d\n", int(h));
-	printf("The width is £º%d\n", int(w));
+	printf("The height is :%d\n", (int)(h));
+	printf("The width is £º%d\n", (int)(w));
 	printf("The Matrix(r) is : \n\t");
 
 	for (size_t y = 0, x; y < h; y++)
 	{
 		for (x = 0; x < w; x++)
 		{
-			printf("%d\t", int(img->img_pixels[y][x].red));
+			printf("%d\t", (int)(img->img_pixels[y][x].red));
 
 		}
 		printf("\n\t");
@@ -349,8 +349,8 @@ void bmp_padding_2_repeat(bmp_img* img_o, bmp_img* img_p)
 
 {
 
-	int width = int (img_o->img_header.biWidth);
-	int height = int (img_o->img_header.biHeight);
+	int width = (int) (img_o->img_header.biWidth);
+	int height = (int )(img_o->img_header.biHeight);
 
 
 	for (size_t y = 0, x; y < height; y++)
