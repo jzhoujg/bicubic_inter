@@ -40,6 +40,14 @@ double pow(double a , int n)
 
 }
 */
+
+
+char tar_dir[30];
+char res_dir[30];
+char res[30];
+char tar[30];
+
+
 double dabs(double c)
 
 {
@@ -90,7 +98,7 @@ void bicubic_inter(bmp_img in, uint32_t width_in, uint32_t height_in, bmp_img* o
 	bmp_img_init_df(&img_p, width_in + 4, height_in + 4);
 	bmp_padding_2_repeat(&in, &img_p);
 
-	bmp_img_write(&img_p, "results/padding_test_0.bmp");
+	//bmp_img_write(&img_p, "results/padding_test_0.bmp");
 
 	//bmp_value_print(&in);
 	//bmp_value_print(& img_p);
@@ -161,12 +169,7 @@ void bicubic_inter(bmp_img in, uint32_t width_in, uint32_t height_in, bmp_img* o
 
 			const unsigned char up = 255;
 			const unsigned char down = 0;
-
-
 	
-
-
-			
 
 			u_x = src_x - (double)(x1) + 2 ;
 		X[0] = getWeight(u_x,0);
@@ -233,7 +236,7 @@ void bicubic_inter(bmp_img in, uint32_t width_in, uint32_t height_in, bmp_img* o
 	printf("Stage 3(OUTPUT) : START...\n");
 
 
-	bmp_img_write(out, "results/1.bmp");
+	bmp_img_write(out, res);
 
 
 
@@ -272,8 +275,7 @@ void* multi_inter(void* vargp)
 
 
 	char symbol[20] = "0123456789";
-	char tar_dir[30] = "target/"; // Ŀ¼��
-	char res_dir[30] = "multires/";
+
 	char tail_1[10] = "0.bmp\0";
 
 	char tail_2[10] = "10.bmp\0";
@@ -520,35 +522,61 @@ void multi_set(uint32_t num_instance)
 int main()
 {
 
-	/*
-	bmp_img img_in;
-	bmp_img img_out;
-	// Draw a checkerboard pattern:
-	uint32_t width_in = 960;
-	uint32_t height_in = 540;
+		char c1;
+	printf("Please select the model you want? Parallel(P) or Serial(S)?\n");
+	scanf("%c", &c1);
 
-	size_t ex = 4;
+	if (c1 == 's' || c1 == 'S')
+	{
 
-	bmp_img_init_df(&img_in, width_in, height_in);
-	bmp_img_init_df(&img_out, width_in * ex, height_in * ex);
-	bmp_img_read(&img_in, "target/1.bmp");
+		bmp_img img_in;
+		bmp_img img_out;
 
-	bicubic_inter(img_in, width_in, height_in, &img_out, width_in * ex, height_in * ex, 1);
+		// Draw a checkerboard pattern:
+		uint32_t width_in = 960;
+		uint32_t height_in = 540;
+		size_t ex = 4;
 
-	//bmp_img_write(&img_out, "results/1.bmp");
+		printf("Please input the file you want to operate on? (eg : target/1.bmp)\n");
+		scanf("%s", &tar);
+		printf("Please input the file  you want to save the result as?(eg: results/1.bmp )\n ");
+		scanf("%s", res);
+
+		bmp_img_init_df(&img_in, width_in, height_in);
+		bmp_img_init_df(&img_out, width_in * ex, height_in * ex);
+		bmp_img_read(&img_in, tar);
+		bicubic_inter(img_in, width_in, height_in, &img_out, width_in * ex, height_in * ex, 1);
+		//bmp_img_write(&img_out, "results/1.bmp");
+		bmp_img_free(&img_out);
+		bmp_img_free(&img_in);
+
+		
+	}
+
+	if (c1 == 'P' || c1 == 'p')
+	{
+		int num;
+		printf("Please input number of files  (eg : 18)\n");
+		scanf("%d", &num);
+
+		printf("Please input directory you want to operate on? (eg:target/)\n");
+		scanf("%s", &tar_dir);
+		printf("Please output directory you want to operate on? (eg:multires/)\n");
+		scanf("%s", &res_dir);
+
+		multi_set(num);
+
+	}
 
 
-	bmp_img_free(&img_out);
-	bmp_img_free(&img_in);
 
-	
 	printf("exit!\n");
 
 
-	//printf("start mul!");*/
+//printf("start mul!");
 
 
-	multi_set(32);
+	//multi_set(47);
 
 
 	return 0;
